@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Autocomplete, Box, Button, Container, FormControl, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import axios from 'axios'
+import Users from './Users';
 
 const Bill = () => {
   const [users, setUsers] = useState([])
@@ -69,7 +70,9 @@ const Bill = () => {
             value={person}
             onChange={(e) => setPerson(e.target.value)}
           />
-          <Button  variant='contained' type='submit'>Add</Button>
+          <Button variant="contained" type="submit">
+            Add
+          </Button>
         </form>
       </Box>
       <Box display={'flex'} mb={6}>
@@ -99,32 +102,11 @@ const Bill = () => {
             }
           />
         </form>
-        <Button variant='contained' onClick={updateObjects}>Add item</Button>
+        <Button variant="contained" onClick={updateObjects}>
+          Add item
+        </Button>
       </Box>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <th>name</th>
-            <th>price</th>
-            <th>iban</th>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user, idx) => (
-            <TableRow key={idx}>
-              <TableCell>{user.label}</TableCell>
-              <TableCell>{user.price}$</TableCell>
-              <TableCell>
-                {
-                  user.iban ? <p>{user.iban}</p>:
-                <Button onClick={() => fetchPib(user.label)}>add iban</Button>
-                
-                }
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Users fetchPib={fetchPib} users={users} />
     </Container>
   );
 }
