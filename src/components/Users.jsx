@@ -12,7 +12,7 @@ import {
   TableRow,
   TextField,
 } from '@mui/material';
-const Users = ({users, fetchPib}) => {
+const Users = ({users, fetchPib, loading}) => {
   return (
     <Table>
       <TableHead>
@@ -28,7 +28,7 @@ const Users = ({users, fetchPib}) => {
             <TableCell>{user.label}</TableCell>
             <TableCell>{user.price}$</TableCell>
             <TableCell>
-              {user.iban ? (
+              {loading ? "loading...":user.iban ? (
                 <p>{user.iban}</p>
               ) : (
                 <Button onClick={() => fetchPib(user.label)}>add iban</Button>

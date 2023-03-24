@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Autocomplete, Box, Button, Container, FormControl, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import axios from 'axios'
 import Users from './Users';
+import Items from './Items';
 
 const Bill = () => {
+  const [loadingIban, setLoadingIban] = useState(false)
   const [users, setUsers] = useState([])
   const [id, setId] = useState(0)
   const [items, setItems] = useState([])
@@ -12,7 +14,6 @@ const Bill = () => {
     price: 0,
     splitMemebers: []
   })
-
   const [person, setPerson] = useState("")
   const handlePerson = e => {
     e.preventDefault()
@@ -22,6 +23,7 @@ const Bill = () => {
     setPerson("")
   }
   const fetchPib = (user) => {
+    setLoadingIban(true)
     axios.post('https://63e3e2d765ae49317719e670.mockapi.io/api/v1/users', { name: user })
       .then(res => {
         console.log(res.data)
@@ -36,12 +38,13 @@ const Bill = () => {
            }
         })
         setUsers(updatedUsers)
-        console.log(updatedUsers)
+        setLoadingIban(false)
       }).catch(err => console.log(err.message))
   }
 
 
   const updateObjects = () => {
+    if (!price || item.splitMemebers.length === 0) return;
       const amount = price / item.splitMemebers.length
     const updatedObjects = []
     users.map(user => {
@@ -56,15 +59,26 @@ const Bill = () => {
       }
     })
 
-      setUsers(updatedObjects);
-    setPrice(0)
-    };
+    setUsers(updatedObjects);
+          setItems((prev) => [...prev, item]);
+          setPrice(0);
+          setItem({
+            price: 0,
+            splitMemebers: [],
+          });
+
+  };
   return (
-    <Container>
+    <Container maxWidth="80px">
       <Box mb={6}>
         <h3>PayBil</h3>
-        <form onSubmit={handlePerson}>
+        <form style={{
+          display : "flex",
+          gap: "24px",
+          
+        }} onSubmit={handlePerson}>
           <TextField
+            label="Add Person"
             type="text"
             placeholder="Add Person"
             value={person}
@@ -74,39 +88,40 @@ const Bill = () => {
             Add
           </Button>
         </form>
-      </Box>
-      <Box display={'flex'} mb={6}>
-        <form
-          action=""
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            minWidth: '80vw',
-          }}
-        >
+        {
+          items.map(item => (<Items price={item.price} users={item.splitMemebers} />))
+        }
+        <Box mt={6} display={'flex'} gap={2}>
           <TextField
             placeholder="Add amount"
             type="number"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              setPrice(e.target.value)
+              setItem(prev => ({...prev, price: Number(e.target.value)}))
+            }}
           />
           <Autocomplete
             fullWidth
             renderInput={(params) => (
               <TextField {...params} fullWidth label=""></TextField>
             )}
+            value={item.splitMemebers}
             options={users}
             multiple
             onChange={(e, value) =>
               setItem((prev) => ({ ...prev, splitMemebers: value }))
             }
           />
-        </form>
+        </Box>
+      </Box>
+      <Box display={'flex'} mb={6}>
+      
         <Button variant="contained" onClick={updateObjects}>
           Add item
         </Button>
       </Box>
-      <Users fetchPib={fetchPib} users={users} />
+      <Users fetchPib={fetchPib} users={users} loading={loadingIban} />
     </Container>
   );
 }
