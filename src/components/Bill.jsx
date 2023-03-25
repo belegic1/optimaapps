@@ -43,23 +43,27 @@ const Bill = () => {
   }
 
 
-  const updateObjects = () => {
+  const addItem = () => {
     if (!price || item.splitMemebers.length === 0) return;
-      const amount = price / item.splitMemebers.length
-    const updatedObjects = []
-    users.map(user => {
-      const member = item.splitMemebers.find(u => u.id === user.id)
-      if (member) {
-        updatedObjects.push({
-          ...user,
-          price: user.price + amount,
-        });
-      } else {
-        updatedObjects.push(user)
-      }
-    })
+          if (!price || item.splitMemebers.length === 0) return;
 
-    setUsers(updatedObjects);
+          let hashMap = {};
+
+          let usersCopy = [...users];
+          let memebersCopy = [...item.splitMemebers];
+          const amount = price / memebersCopy.length;
+
+          for (let i = 0; i < memebersCopy.length; i++) {
+            hashMap[memebersCopy[i].id] = memebersCopy[i];
+          }
+
+          for (let i = 0; i < usersCopy.length; i++) {
+            let obj = hashMap[usersCopy[i].id];
+            if (obj) {
+              usersCopy[i].price += amount;
+            }
+          }
+          setUsers(usersCopy);
           setItems((prev) => [...prev, item]);
           setPrice(0);
           setItem({
@@ -89,7 +93,7 @@ const Bill = () => {
           </Button>
         </form>
         {
-          items.map(item => (<Items price={item.price} users={item.splitMemebers} />))
+          items.map((item, idx )=> (<Items key={idx} price={item.price} users={item.splitMemebers} />))
         }
         <Box mt={6} display={'flex'} gap={2}>
           <TextField
@@ -117,7 +121,7 @@ const Bill = () => {
       </Box>
       <Box display={'flex'} mb={6}>
       
-        <Button variant="contained" onClick={updateObjects}>
+        <Button variant="contained" onClick={addItem}>
           Add item
         </Button>
       </Box>
